@@ -22,7 +22,7 @@ RUN --mount=type=cache,id=bun-cache,target=/root/.bun/install/cache \
     cd frontend && bun install --frozen-lockfile
 
 COPY backend-go/go.mod backend-go/go.sum ./backend-go/
-RUN --mount=type=cache,id=go-mod-cache,target=/go/pkg/mod \
+RUN --mount=type=cache,id=cacheKey=go-mod-cache,target=/go/pkg/mod \
     cd backend-go && go mod download
 
 # 复制全部源码（变动频繁，放在依赖层之后）
@@ -32,7 +32,7 @@ COPY backend-go/ ./backend-go/
 COPY VERSION ./
 
 # 构建：交叉编译目标平台，利用 Go build cache
-RUN --mount=type=cache,id=go-build-cache,target=/root/.cache/go-build \
+RUN --mount=type=cache,id=cacheKey=go-build-cache,target=/root/.cache/go-build \
     GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 \
     VERSION=${VERSION} make build
 
